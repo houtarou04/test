@@ -1,53 +1,35 @@
+// 1. إعداد الاتصال بـ Supabase
+const supabaseUrl = 'https://vmrffieodjochyorkgve.supabase.co/rest/v1/cards';
+const supabaseKey = 'sb_publishable_HZNkREzI_2VytqnpA0GvXg_2fGkqjny';
+const supabase = supabaseClient.createClient(supabaseUrl, supabaseKey);
 
-const trips = [
-  { 
-    id: 1,
-    title: "رحلة الرياض", 
-    category: "رحلات سياحية", 
-    description: "استكشف عاصمة المملكة وتمتع بمعالمها التاريخية والحديثة" 
-  },
-  { 
-    id: 2,
-    title: "رحلة جدة الساحلية", 
-    category: "رحلات سياحية", 
-    description: "استرخي على الشواطئ الجميلة واستمتع بالمأكولات البحرية الطازجة" 
-  },
-  { 
-    id: 3,
-    title: "رحلة المدينة المنورة", 
-    category: "رحلات دينية", 
-    description: "زر المسجد النبوي الشريف وتعمق في التاريخ الإسلامي" 
-  },
-  { 
-    id: 4,
-    title: "رحلة الدمام", 
-    category: "رحلات سياحية", 
-    description: "اكتشف جمال الخليج وحدائقه الخضراء الرائعة" 
-  },
-  { 
-    id: 5,
-    title: "رحلة الطائف", 
-    category: "رحلات جبلية", 
-    description: "استمتع بالطقس البارد والطبيعة الساحرة في الجبال" 
-  },
-  { 
-    id: 6,
-    title: "رحلة الأحساء", 
-    category: "رحلات سياحية", 
-    description: "اكتشف واحة الأحساء وحدائق النخيل الخضراء الشهيرة" 
+// دالة عرض المنتجات من البيانات
+async function displayProducts() {
+  // جلب البيانات من جدول products في Supabase
+  const { data: products, error } = await supabase.from('products').select('*');
+
+  if (error) {
+    console.error("خطأ في جلب البيانات:", error);
+    return;
   }
-];
 
-for (let i = 0; i < trips.length; i++) {
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.innerHTML = `
-    <img src="image_${trips[i].id}.jpg" class="card_img" alt="${trips[i].title}">
-    <div class="card_body">
-      <h3 class="card_title">${trips[i].title}</h3>
-      <span class="card_category">${trips[i].category}</span>
-      <p class="card_text">${trips[i].description}</p>
+  const container = document.getElementById('product-container');
+  
+  // عرض البيانات بناءً على هيكل الـ CSV الذي رفعته
+  container.innerHTML = products.map(product => `
+    <div class="card">
+      <img class="card-image" src="${product.img_url}" alt="${product.title}">
+      
+      <div class="content-section">
+        <div class="button-group">
+          <button class="btn">طلب عبر الواتساب</button>
+          <button class="btn">المزيد</button>
+        </div>
+        <div class="text-area">
+          <div class="title">${product.title}</div>
+          <div class="text">${parseInt(product.price).toLocaleString('ar-SD')} جنيه</div>
+        </div>
+      </div>
     </div>
-  `;
-  document.querySelector('section').appendChild(card);
+  `).join('');
 }
