@@ -13,8 +13,119 @@
 <header>
   <img class="logo" src="logo.jpg">
 </header>
- <section class="container">
-   
- </section>
+ <!-- ضع هذا الكود في موقعك -->
+
+<!-- 1. ضع هذا div في المكان الذي تريد أن تظهر فيه الكروت -->
+<div id="cards-container" class="cards-container"></div>
+
+<!-- 2. أضف هذا الـ CSS في ملف style.css أو داخل <style> -->
+<style>
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  background: #eee;
+}
+
+.card-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.card-desc {
+  font-size: 14px;
+  color: #555;
+  flex: 1;
+}
+
+.card-price {
+  font-size: 16px;
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+.card-whatsapp {
+  display: inline-block;
+  text-align: center;
+  background: #25D366;
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+</style>
+
+<!-- 3. أضف هذا الـ JS قبل إغلاق </body> -->
+<script>
+const SUPABASE_URL = "https://vmrffieodjochyorkgve.supabase.co";
+const SUPABASE_KEY = "sb_publishable_HZNkREzI_2VytqnpA0GvXg_2fGkqjny";
+
+async function loadCards() {
+  const container = document.getElementById("cards-container");
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/cards?select=*`, {
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`
+      }
+    });
+
+    if (!res.ok) throw new Error("فشل تحميل البيانات");
+
+    const cards = await res.json();
+
+    if (cards.length === 0) {
+      container.innerHTML = "<p>لا توجد بطاقات حالياً.</p>";
+      return;
+    }
+
+    container.innerHTML = cards.map(card => `
+      <div class="card">
+        <img src="${card.img_url || 'https://via.placeholder.com/300x180?text=No+Image'}" alt="${card.title || ''}">
+        <div class="card-body">
+          <h3 class="card-title">${card.title || ''}</h3>
+          <p class="card-desc">${card.description || ''}</p>
+          ${card.price ? `<div class="card-price">${card.price} ريال</div>` : ''}
+          ${card.whatsapp_mess ? `<a class="card-whatsapp" href="https://wa.me/?text=${encodeURIComponent(card.whatsapp_mess)}" target="_blank">تواصل عبر واتساب</a>` : ''}
+        </div>
+      </div>
+    `).join('');
+
+  } catch (err) {
+    container.innerHTML = `<p>حدث خطأ: ${err.message}</p>`;
+    console.error(err);
+  }
+}
+
+loadCards();
+</script>
+
 </body>
 </html>
